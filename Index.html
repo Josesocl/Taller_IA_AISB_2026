@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taller IA AISB · Cuestionario de Cierre</title>
+<style>
+  :root {
+    --navy:    #0A1628;
+    --steel:   #1C3A5E;
+    --cyan:    #00D4FF;
+    --white:   #FFFFFF;
+    --offwhite:#F5F7FA;
+    --grafito: #2D3748;
+    --muted:   #64748B;
+    --border:  #E2E8F0;
+    --green:   #059669;
+    --greenbg: #D1FAE5;
+    --amber:   #D97706;
+    --amberb:  #FEF3C7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--offwhite); color: var(--grafito); min-height: 100vh; padding: 20px 16px 48px; }
+
+  .header { background: var(--navy); color: var(--white); border-radius: 16px; padding: 24px 28px 20px; margin-bottom: 20px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content:''; position:absolute; top:-60px; right:-60px; width:200px; height:200px; background: radial-gradient(circle, rgba(0,212,255,0.15), transparent 65%); }
+  .header-badge { display: inline-block; background: rgba(0,212,255,0.2); color: var(--cyan); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 4px 12px; border-radius: 20px; margin-bottom: 10px; border: 1px solid rgba(0,212,255,0.3); }
+  .header h1 { font-size: 22px; font-weight: 700; color: var(--white); margin-bottom: 6px; line-height: 1.2; }
+  .header p  { font-size: 13px; color: rgba(255,255,255,0.7); }
+  .header-ebook { display: flex; align-items: center; gap: 10px; background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.25); border-radius: 10px; padding: 10px 14px; margin-top: 14px; text-align: left; }
+  .header-ebook .icon { font-size: 22px; }
+  .header-ebook .txt { font-size: 12px; color: var(--cyan); line-height: 1.5; }
+  .header-ebook .txt strong { display: block; font-size: 13px; color: var(--white); margin-bottom: 1px; }
+
+  .progress-bar { height: 4px; background: var(--border); border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--cyan); border-radius: 4px; transition: width .4s ease; width: 0%; }
+  .progress-label { font-size: 11px; color: var(--muted); text-align: right; margin-top: 5px; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* QUESTION CARD */
+  .q-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 22px 20px; margin-bottom: 14px; }
+  .q-num { font-size: 11px; font-weight: 700; color: var(--cyan); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .q-text { font-size: 17px; font-weight: 600; color: var(--navy); line-height: 1.35; margin-bottom: 16px; }
+  .q-sub  { font-size: 13px; color: var(--muted); margin-top: -10px; margin-bottom: 14px; line-height: 1.5; }
+
+  /* OPTIONS */
+  .options { display: grid; gap: 8px; }
+  .opt { display: flex; align-items: flex-start; gap: 12px; background: var(--offwhite); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: all .15s; }
+  .opt:hover { border-color: rgba(0,212,255,0.5); background: rgba(0,212,255,0.05); }
+  .opt.selected { border-color: var(--cyan); background: rgba(0,212,255,0.08); }
+  .opt-radio { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 50%; flex-shrink: 0; margin-top: 1px; transition: all .15s; display: flex; align-items: center; justify-content: center; }
+  .opt.selected .opt-radio { border-color: var(--cyan); background: var(--cyan); }
+  .opt.selected .opt-radio::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--navy); }
+  .opt-label { font-size: 14px; color: var(--grafito); line-height: 1.45; }
+  .opt.selected .opt-label { color: var(--navy); font-weight: 500; }
+
+  /* SCALE */
+  .scale-wrap { display: grid; grid-template-columns: repeat(6,1fr); gap: 6px; }
+  .scale-btn { aspect-ratio: 1; border: 1.5px solid var(--border); border-radius: 10px; font-size: 15px; font-weight: 600; color: var(--muted); background: var(--offwhite); cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; }
+  .scale-btn:hover { border-color: rgba(0,212,255,0.5); color: var(--navy); }
+  .scale-btn.selected { border-color: var(--cyan); background: rgba(0,212,255,0.1); color: var(--navy); }
+  .scale-labels { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: var(--muted); }
+
+  /* WHATSAPP CAPTURE */
+  .wsp-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 22px 20px; margin-bottom: 14px; }
+  .wsp-title { font-size: 17px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+  .wsp-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+  .wsp-row { display: flex; gap: 8px; align-items: stretch; margin-bottom: 10px; }
+  .wsp-flag { background: var(--offwhite); border: 1.5px solid var(--border); border-radius: 10px; padding: 0 12px; font-size: 14px; display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--grafito); white-space: nowrap; }
+  .wsp-input { flex: 1; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 15px; font-family: inherit; outline: none; transition: border-color .15s; color: var(--grafito); }
+  .wsp-input:focus { border-color: var(--cyan); }
+  input[type="text"] { border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 15px; font-family: inherit; outline: none; transition: border-color .15s; color: var(--grafito); width: 100%; }
+  input[type="text"]:focus { border-color: var(--cyan); }
+  .wsp-name-row { margin-bottom: 10px; }
+  .wsp-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: block; }
+  .wsp-consent { display: flex; align-items: flex-start; gap: 10px; background: var(--amberb); border: 1px solid rgba(217,119,6,0.25); border-radius: 10px; padding: 10px 12px; cursor: pointer; }
+  .wsp-consent input { margin-top: 2px; cursor: pointer; width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--amber); }
+  .wsp-consent label { font-size: 12px; color: var(--amber); line-height: 1.5; cursor: pointer; }
+
+  /* BUTTONS */
+  .btn-next { width: 100%; background: var(--cyan); color: var(--navy); border: none; border-radius: 12px; padding: 15px; font-size: 16px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all .15s; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-next:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,212,255,0.3); }
+  .btn-next:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-back { background: none; border: 1px solid var(--border); border-radius: 12px; padding: 11px; font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; color: var(--muted); width: 100%; margin-top: 6px; }
+  .btn-back:hover { border-color: var(--muted); color: var(--grafito); }
+
+  /* SUCCESS */
+  .success-card { background: var(--white); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; text-align: center; }
+  .success-icon { width: 64px; height: 64px; background: var(--greenbg); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px; }
+  .success-title { font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .success-sub { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+  .success-info { background: var(--greenbg); border-radius: 12px; padding: 14px 16px; font-size: 13px; color: var(--green); font-weight: 500; line-height: 1.6; margin-bottom: 16px; }
+  .btn-wsp { display: flex; align-items: center; justify-content: center; gap: 10px; background: #25D366; color: var(--white); border: none; border-radius: 12px; padding: 15px; font-size: 16px; font-weight: 700; font-family: inherit; cursor: pointer; width: 100%; text-decoration: none; transition: all .15s; }
+  .btn-wsp:hover { background: #1EB85C; transform: translateY(-1px); }
+  .ibs-footer { text-align: center; margin-top: 24px; }
+  .ibs-footer p { font-size: 11px; color: var(--muted); }
+  .ibs-footer strong { color: var(--navy); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div style="max-width:480px; margin:0 auto;">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-badge">Taller IA · AISB · 27 Mayo 2026</div>
+    <h1>Cuestionario de cierre</h1>
+    <p>4 preguntas rápidas · Menos de 2 minutos</p>
+    <div class="header-ebook">
+      <div class="icon">📘</div>
+      <div class="txt">
+        <strong>Completa y recibe tu ebook gratis</strong>
+        Guía de Implementación IA para Empresas Industriales — vía WhatsApp en minutos.
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <p class="progress-label" id="progressLabel">Pregunta 1 de 4</p>
+
+  <!-- ═══════════ SCREEN 1 ═══════════ -->
+  <div class="screen active" id="screen1">
+    <div class="q-card">
+      <div class="q-num">Pregunta 1 · El diagnóstico</div>
+      <div class="q-text">¿En qué nivel de madurez IA está tu empresa hoy?</div>
+      <div class="q-sub">El nivel 3 es donde se encuentran la mayoría de las empresas del sector.</div>
+      <div class="scale-wrap">
+        <button class="scale-btn" data-val="1" onclick="selectScale(this,1)">1</button>
+        <button class="scale-btn" data-val="2" onclick="selectScale(this,2)">2</button>
+        <button class="scale-btn" data-val="3" onclick="selectScale(this,3)">3</button>
+        <button class="scale-btn" data-val="4" onclick="selectScale(this,4)">4</button>
+        <button class="scale-btn" data-val="5" onclick="selectScale(this,5)">5</button>
+        <button class="scale-btn" data-val="6" onclick="selectScale(this,6)">6</button>
+      </div>
+      <div class="scale-labels"><span>Uso individual</span><span>Agentes autónomos</span></div>
+    </div>
+    <button class="btn-next" id="next1" disabled onclick="goTo(2)">Siguiente <span>→</span></button>
+  </div>
+
+  <!-- ═══════════ SCREEN 2 ═══════════ -->
+  <div class="screen" id="screen2">
+    <div class="q-card">
+      <div class="q-num">Pregunta 2 · El dolor</div>
+      <div class="q-text">¿Cuál es el mayor problema operacional en tu empresa hoy?</div>
+      <div class="options" id="opts2">
+        <div class="opt" onclick="selectOpt(this,'q2','a')">
+          <div class="opt-radio"></div>
+          <div class="opt-label">Cotizaciones lentas y dependientes de una persona</div>
+        </div>
+        <div class="opt" onclick="selectOpt(this,'q2','b')">
+          <div class="opt-radio"></div>
+          <div class="opt-label">Falta de visibilidad: no sé cómo voy hasta que cierro el mes</div>
+        </div>
+        <div class="opt" onclick="selectOpt(this,'q2','c')">
+          <div class="opt-radio"></div>
+          <div class="opt-label">El conocimiento clave está en personas, no en sistemas</div>
+        </div>
+        <div class="opt" onclick="selectOpt(this,'q2','d')">
+          <div class="opt-radio"></div>
+          <div class="opt-label">Reportes manuales y decisiones tardías</div>
+        </div>
+        <div class="opt" onclick="selectOpt(this,'q2','e')">
+          <div class="opt-radio"></div>
+          <div class="opt-label">Procesos sin trazabilidad ni estandarización</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-next" id="next2" disabled onclick="goTo(3)">Siguiente <span>→</span></button>
+    <button class="btn-back" onclick="goTo(1)">← Volver</button>
+  </div>
+
+  <!-- ═══════════ SCREEN 3 ═══════════ -->
+  <div class="screen" id="screen3">
+    <div class="q-card">
+      <div class="q-num">Pregunta 3 · El plan</div>
+      <div class="q-text">¿Cuál es el primer paso que daría con IA en los próximos 90 días?</div>
+      <div class="options" id="opts3">
+        <div class="opt" onclick="selectOpt(this,'q3','a')">
+          <div class="opt-radio"></div>
+          <div class="opt-label">🔍 Diagnóstico ejecutivo para saber por dónde partir</div>
+        </div>
+        <div class="opt" onclick="selectOpt(this,'q3','b')">
+          <div class="opt-radio"></div>
+          <div class="opt-label">💬 Agente de cotización automática</div>
+        </div>
+        <div class="opt" onclick="selectOpt(this,'q3','c')">
+          <div class="opt-radio"></div>
+          <div class="opt-label">📊 Dashboard gerencial con datos en tiempo real</div>
+        </div>
+        <div class="opt" onclick="selectOpt(this,'q3','d')">
+          <div class="opt-radio"></div>
+          <div class="opt-label">📚 Base documental inteligente (manuales, contratos, fichas)</div>
+        </div>
+        <div class="opt" onclick="selectOpt(this,'q3','e')">
+          <div class="opt-radio"></div>
+          <div class="opt-label">🤔 Todavía necesito más información antes de decidir</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-next" id="next3" disabled onclick="goTo(4)">Siguiente <span>→</span></button>
+    <button class="btn-back" onclick="goTo(2)">← Volver</button>
+  </div>
+
+  <!-- ═══════════ SCREEN 4 ═══════════ -->
+  <div class="screen" id="screen4">
+    <div class="q-card">
+      <div class="q-num">Pregunta 4 · El taller</div>
+      <div class="q-text">¿Qué tan útil fue el taller para tu empresa?</div>
+      <div class="scale-wrap">
+        <button class="scale-btn" data-val="1" onclick="selectScale2(this,1)">1</button>
+        <button class="scale-btn" data-val="2" onclick="selectScale2(this,2)">2</button>
+        <button class="scale-btn" data-val="3" onclick="selectScale2(this,3)">3</button>
+        <button class="scale-btn" data-val="4" onclick="selectScale2(this,4)">4</button>
+        <button class="scale-btn" data-val="5" onclick="selectScale2(this,5)">5</button>
+      </div>
+      <div class="scale-labels"><span>Poco útil</span><span>Muy útil</span></div>
+    </div>
+    <button class="btn-next" id="next4" disabled onclick="goTo(5)">Siguiente → Recibir ebook</button>
+    <button class="btn-back" onclick="goTo(3)">← Volver</button>
+  </div>
+
+  <!-- ═══════════ SCREEN 5 — WHATSAPP ═══════════ -->
+  <div class="screen" id="screen5">
+    <div class="wsp-card">
+      <div class="wsp-title">📲 Recibe el ebook por WhatsApp</div>
+      <div class="wsp-sub">Ingresa tu nombre y número. Te enviaremos la guía en menos de 24 horas.</div>
+
+      <div class="wsp-name-row">
+        <label class="wsp-label">Tu nombre</label>
+        <input type="text" id="nombre" placeholder="Nombre y apellido" />
+      </div>
+
+      <label class="wsp-label">Tu número de WhatsApp</label>
+      <div class="wsp-row">
+        <div class="wsp-flag">🇨🇱 +56</div>
+        <input class="wsp-input" type="tel" id="whatsapp" placeholder="9 1234 5678" maxlength="12" oninput="validateWsp()" />
+      </div>
+
+      <div class="wsp-consent" style="margin-top:10px;">
+        <input type="checkbox" id="consent" onchange="validateWsp()" />
+        <label for="consent">Acepto recibir el ebook y futuras comunicaciones de IBS Partners por WhatsApp. Puedo desuscribirme en cualquier momento.</label>
+      </div>
+    </div>
+    <button class="btn-next" id="next5" disabled onclick="submitForm()">📘 Recibir mi ebook gratis</button>
+    <button class="btn-back" onclick="goTo(4)">← Volver</button>
+  </div>
+
+  <!-- ═══════════ SCREEN 6 — SUCCESS ═══════════ -->
+  <div class="screen" id="screen6">
+    <div class="success-card">
+      <div class="success-icon">✅</div>
+      <div class="success-title">¡Listo! Recibirás el ebook en tu WhatsApp</div>
+      <div class="success-sub">Gracias por participar en el taller. En menos de 24 horas te llegará la Guía de Implementación IA para Empresas Industriales.</div>
+      <div class="success-info">
+        📘 <strong>Guía de Implementación IA</strong><br>
+        Para empresas industriales que quieren empezar bien, con arquitectura y sin improvisación.
+      </div>
+      <a class="btn-wsp" id="wspBtn" href="#">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.12.554 4.112 1.522 5.837L.057 23.184a.75.75 0 0 0 .92.92l5.347-1.465A11.944 11.944 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.7-.524-5.23-1.435l-.374-.222-3.873 1.062 1.062-3.873-.222-.374A9.944 9.944 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        Confirmar en WhatsApp
+      </a>
+    </div>
+
+    <div class="ibs-footer">
+      <p><strong>IBS Partners</strong> · Diagnóstico Ejecutivo IA · 40 UF</p>
+      <p style="margin-top:4px;">jrjottar@ibsolucion.com · gilberto@ibsolucion.com</p>
+    </div>
+  </div>
+
+</div><!-- end max-width -->
+
+<script>
+// ─── CONFIGURACIÓN ───────────────────────────────────────
+// Pegar aquí la URL que entrega Google Apps Script al hacer deploy:
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwcvfidWaSBVJPfTWRNsUWX08848DJC-eIPH1cj471sPMLzdV2DyXFPT4u-eFkAI8Jq/exec';
+
+// Lista de asistentes para autocompletar empresa por número
+const ATTENDEES = [
+  ["Alfred Naeter","AISB","56993371740"],
+  ["Julieta Ramírez Becerra","AISB","56933821255"],
+  ["Alvaro Roman","Clamami SpA","56987299510"],
+  ["Maria Teresa Solis Mateluna","Pentacrom S.A.",""],
+  ["Alejandro Venegas Quezada","Ecomundo","56964841106"],
+  ["Maria Angelica Dominguez","Essaat Group","56988396185"],
+  ["Fernanda Burgos","Descanso del Quijote","56988396457"],
+  ["Camila Faundez Stipicevic","Alianza TS","56998879621"],
+  ["Claudio Alvarez Palominos","Hunter Douglas Chile","56991294869"],
+  ["Jose Luis Gonzalez Escobar","EM Delgado","56992228333"],
+  ["Eduardo Illanes","Hunter Douglas Chile","56965960164"],
+  ["Karen Cristi Hormazábal","Cía. Minera Santa Laura","56981292690"],
+  ["José Fabián Flores Hoffmann","Cía. Minera Santa Laura","56956580187"],
+  ["Luis Gutierrez","Omamet","56998297365"],
+  ["Marlen Tolosa","Omamet","56984196452"],
+  ["Aquiles Gutierrez","Omamet","56962192047"],
+  ["Marco Gutierrez","Omamet","56962192028"],
+  ["Patricio Sandoval Pineda","Consultora PSP","56993436533"],
+  ["Patricio Silva Q","Luminosos Alcaino","56988088922"],
+  ["Ricardo Alcaino","Luminosos Alcaino","56992003148"],
+  ["Cristián Maturana Krogh","Metalbras Ltda.","56996001050"],
+  ["Nicolas Bravo","Luminosos Alcaino","56987741792"],
+  ["Hugo Rivadeneira Del Valle","Luminosos Alcaino","56997443951"],
+  ["Erwin Obreque Espinoza","Luminosos Alcaino","56988076099"],
+  ["Carlos Felipe Ortiz Oliva","Luminosos Alcaino","56993342952"],
+  ["Patricio Muena Yevenes","Omamet","56942239370"],
+  ["Fernando Urizar","Hunter Douglas","56998872704"],
+  ["Marcelo Campos","Segura e Hijos","56989227556"],
+  ["Francisco Gomez Gracia","Polydeck","56994487093"],
+  ["Mateo Burgos","AISB","56982309753"],
+  ["Rodrigo Jordan Olivares","CM Pozos SpA","56983411152"],
+  ["Carla Caroca","Hunter Douglas","56977962392"],
+  ["Jorge Camps","AIEP","56952299315"],
+  ["Luis Fernando Pérez Bastidas","AISB","56953040065"],
+  ["Raul Carrasco Avila","Pentacrom","56995792475"],
+  ["Marjorie Sepúlveda","Versep Ltda","56990894013"],
+  ["Ambar Bahamondes Carreño","AISB","56955390990"],
+  ["Valentina Acosta","MolymetNos","56929376201"],
+  ["Ranjit Das Kumar","Essaar Group","56966787117"],
+  ["Alejandro Molina","Luval SA","56992409651"],
+  ["Cristian Ibarra Célis","Luval S.A.","56985960309"],
+  ["Mirko Jordan","Cmpozos","56983413006"],
+];
+
+function lookupEmpresa(numero) {
+  const clean = numero.replace(/\D/g, '');
+  const match = ATTENDEES.find(a => a[2] && clean.endsWith(a[2]));
+  return match ? match[1] : '';
+}
+
+const answers = {};
+let currentScreen = 1;
+
+function goTo(n) {
+  document.getElementById('screen' + currentScreen).classList.remove('active');
+  document.getElementById('screen' + n).classList.add('active');
+  currentScreen = n;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  const total = 4;
+  const step = Math.min(currentScreen, total);
+  const pct = Math.round((step / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  if (currentScreen <= 4) {
+    document.getElementById('progressLabel').textContent = 'Pregunta ' + step + ' de ' + total;
+  } else if (currentScreen === 5) {
+    document.getElementById('progressLabel').textContent = 'Último paso · Recibir ebook';
+  } else {
+    document.getElementById('progressLabel').textContent = '¡Completado!';
+    document.getElementById('progressFill').style.background = '#059669';
+  }
+}
+
+function selectScale(btn, val) {
+  document.querySelectorAll('#screen1 .scale-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  answers.q1 = 'Nivel ' + val;
+  document.getElementById('next1').disabled = false;
+}
+
+function selectScale2(btn, val) {
+  document.querySelectorAll('#screen4 .scale-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  answers.q4 = 'Utilidad ' + val + '/5';
+  document.getElementById('next4').disabled = false;
+}
+
+function selectOpt(el, q, val) {
+  const parent = el.closest('.options');
+  parent.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  const labels = { a:'A', b:'B', c:'C', d:'D', e:'E' };
+  const text = el.querySelector('.opt-label').textContent.trim();
+  answers[q] = text;
+  document.getElementById('next' + (q === 'q2' ? '2' : '3')).disabled = false;
+}
+
+function validateWsp() {
+  const nombre = document.getElementById('nombre').value.trim();
+  const wsp = document.getElementById('whatsapp').value.replace(/\D/g,'');
+  const consent = document.getElementById('consent').checked;
+  document.getElementById('next5').disabled = !(nombre.length > 2 && wsp.length >= 8 && consent);
+}
+
+function submitForm() {
+  const nombre = document.getElementById('nombre').value.trim();
+  const wspRaw = document.getElementById('whatsapp').value.replace(/\D/g,'');
+  const wsp = '+56' + wspRaw;
+  const empresa = lookupEmpresa(wspRaw);
+
+  answers.nombre   = nombre;
+  answers.whatsapp = wsp;
+  answers.empresa  = empresa;
+
+  // Enviar a Google Sheet (sin bloquear la UI)
+  if (APPS_SCRIPT_URL !== 'PEGAR_URL_AQUÍ') {
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre:   answers.nombre,
+        whatsapp: answers.whatsapp,
+        empresa:  answers.empresa,
+        q1:       answers.q1 || '',
+        q2:       answers.q2 || '',
+        q3:       answers.q3 || '',
+        q4:       answers.q4 || ''
+      })
+    }).catch(() => {}); // silenciar errores de red
+  }
+
+  const empresaLinea = empresa ? '\n🏢 ' + empresa : '';
+  const summary = [
+    '📋 *Cuestionario Taller IA AISB — 27 Mayo 2026*',
+    '',
+    '👤 *' + nombre + '*',
+    '📱 ' + wsp + empresaLinea,
+    '',
+    '1️⃣ Nivel madurez IA: ' + (answers.q1 || '-'),
+    '2️⃣ Mayor problema: ' + (answers.q2 || '-').substring(0, 60),
+    '3️⃣ Primer paso: ' + (answers.q3 || '-').substring(0, 60),
+    '4️⃣ Utilidad taller: ' + (answers.q4 || '-'),
+    '',
+    '📘 _Solicita ebook de Guía de Implementación IA_',
+  ].join('\n');
+
+  const encoded = encodeURIComponent(summary);
+  const wspNum = '+56997897959'; // ← REEMPLAZAR con número real de IBS Partners
+  document.getElementById('wspBtn').href = 'https://wa.me/' + wspNum + '?text=' + encoded;
+
+  goTo(6);
+}
+
+updateProgress();
+</script>
+</body>
+</html>
